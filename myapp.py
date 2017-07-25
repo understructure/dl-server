@@ -18,22 +18,26 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def resize_image(full_path, out_path=None, max_w=800, max_h=600):
-    with Image.open(full_path) as im:
-        siz = im.size
-        if siz[0] > max_w or siz[1] > max_h:
-            rato = min(max_w/siz[0], max_h/siz[1])
-            newsize = [int(x * rato) for x in siz]
-            resized = im.resize(newsize)
-            split_img = full_path.split(".")
-            if not out_path:
-                new_path = "".join(split_img[:1]) + "_resized" + "." + split_img[-1]
+    try:
+        with Image.open(full_path) as im:
+            siz = im.size
+            if siz[0] > max_w or siz[1] > max_h:
+                rato = min(max_w/siz[0], max_h/siz[1])
+                newsize = [int(x * rato) for x in siz]
+                resized = im.resize(newsize)
+                split_img = full_path.split(".")
+                if not out_path:
+                    new_path = "".join(split_img[:1]) + "_resized" + "." + split_img[-1]
+                else:
+                    new_path = os.sep.join([out_path, split_img[0].split(os.path.sep)[-1] + "_resized" + "." + split_img[-1]])
+                print("Saving {} as {}".format(full_path, new_path))
+                resized.save(new_path)
+                return new_path
             else:
-                new_path = os.sep.join([out_path, split_img[0].split(os.path.sep)[-1] + "_resized" + "." + split_img[-1]])
-            print("Saving {} as {}".format(full_path, new_path))
-            resized.save(new_path)
-            return new_path
-        else:
-            return full_path
+                return full_path
+    except Exception as e:
+        print("EXCEPTION: " + str(e))
+        raise
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -70,9 +74,13 @@ def upload_file():
 
 
 def main(img_file):
-    full_path = os.sep.join([UPLOAD_FOLDER, img_file[1]])
-    output = run_inference_on_image(full_path)
-    return output
+    try:
+        full_path = os.sep.join([UPLOAD_FOLDER, img_file[1]])
+        output = run_inference_on_image(full_path)
+        return output
+    except Exception as e:
+        print("EXCEPTION: " + str(e))
+        raise
 
 
 @app.route('/classify/', methods=['GET'])

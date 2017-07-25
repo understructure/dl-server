@@ -39,6 +39,9 @@ git clone https://github.com/understructure/dl-server.git /var/www/tf
 # setup permissions for apache
 chown -R apache:apache /var/www/tf
 mv /var/www/tf/_support/vhost.conf /etc/httpd/conf.d/
+mv /var/www/tf/_support/httpd.conf /etc/httpd/conf/
+
+# NOTE:  Not sure if this is necessary...
 chown apache:apache /etc/httpd/conf.d/vhost.conf
 
 # get the public-hostname from the latest metadata and put that into the vhost.conf file

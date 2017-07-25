@@ -1,3 +1,5 @@
 NOTE:
 
 vhost.conf - copy to /etc/httpd/conf.d/vhost.conf and replace HostName based on what's returned from curl http://169.254.169.254/latest/meta-data/public-hostname
+
+TODO:  /etc/httpd/conf/httpd.conf - replace all instances of "/var/www/html" with "/var/www/tf" (should probably just move the code to the html directory?)

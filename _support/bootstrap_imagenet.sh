@@ -9,11 +9,27 @@ yum install -y mod24_wsgi-python35.x86_64
 alternatives --set python /usr/bin/python3.5
 
 # upgrading pip doesn't call pip3 pip anymore, so you have to fix that
-pip install --upgrade pip
-alias pip=/usr/local/bin/pip3
+pip install --upgrade pip 
+
+
+/usr/local/bin/pip install flask \
+                           pandas \
+                           numpy \
+                           tensorflow \
+                           boto3
+
+# https://stackoverflow.com/questions/26302805/pip-broken-after-upgrading
+hash -r
+echo $(type pip)
+# NOTE:  This may or may not be needed...
+# alias pip=/usr/local/bin/pip3
 
 # install critical libraries (Pandas isn't directly used in our case...)
-pip install flask pandas numpy tensorflow
+# pip install flask \
+#             pandas \
+#             numpy \
+#             tensorflow \
+#             boto3
 
 # create a place for our Web app
 mkdir -p /var/www/tf

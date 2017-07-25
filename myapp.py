@@ -3,18 +3,38 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import tensorflow as tf
 from classify_image import run_inference_on_image, NodeLookup
+from PIL import Image
 
 UPLOAD_FOLDER = '/var/www/tf/static'
-ALLOWED_EXTENSIONS = set(['jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = set(['jpg', 'jpeg', 'png'])
 
 app = Flask(__name__)
 app.secret_key = 'some_secret90210'
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER 
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def resize_image(full_path, out_path=None, max_w=800, max_h=600):
+    with Image.open(full_path) as im:
+        siz = im.size
+        if siz[0] > max_w or siz[1] > max_h:
+            rato = min(max_w/siz[0], max_h/siz[1])
+            newsize = [int(x * rato) for x in siz]
+            resized = im.resize(newsize)
+            split_img = full_path.split(".")
+            if not out_path:
+                new_path = "".join(split_img[:1]) + "_resized" + "." + split_img[-1]
+            else:
+                new_path = os.sep.join([out_path, split_img[0].split(os.path.sep)[-1] + "_resized" + "." + split_img[-1]])
+            print("Saving {} as {}".format(full_path, new_path))
+            resized.save(new_path)
+            return new_path
+        else:
+            return full_path
+
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -71,7 +91,7 @@ def do_classify_image():
 
     # top_k = predictions.argsort()[-FLAGS.num_top_predictions:][::-1]
     top_k = predictions_out.argsort()[-5:][::-1]
-
+    
     output = []
 
     for node_id in top_k:
@@ -80,15 +100,18 @@ def do_classify_image():
       print('%s (score = %.5f)' % (human_string, score))
       output.append((human_string, score))
     # outz = tf.app.run(main=main, argv=[None, img_file]) 
-
+   
     if len(output) > 0:
         alt_text = "Most likely " + str(output[0][0])
     else:
         alt_text = "Unable to categorize this image"
-
+ 
     print_out = []
     for x in output:
         print_out.append("<tr><td>" + str(x[0]) + "</td><td>" +  "{:3.1f}".format(x[1] * 100) + " percent </td></tr>")
+ 
+    out_file_full_path = resize_image(full_path)
+    out_filename = out_file_full_path.split(os.sep)[-1] 
 
     return '''
     <!doctype html>
@@ -107,7 +130,7 @@ def do_classify_image():
     <br />
     <img src="{}" alt="{}" />
     </body>
-    </html>'''.format(url_for("static", filename="styles.css")," ".join(print_out), url_for("static", filename=img_file), alt_text)
+    </html>'''.format(url_for("static", filename="styles.css")," ".join(print_out), url_for("static", filename=out_filename), alt_text)
 
 if __name__ == "__main__":
     app.run(debug=True)

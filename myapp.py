@@ -10,7 +10,7 @@ ALLOWED_EXTENSIONS = set(['jpg', 'jpeg'])
 app = Flask(__name__)
 app.secret_key = 'some_secret90210'
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -37,13 +37,16 @@ def upload_file():
             return redirect(url_for('do_classify_image', filename=filename))
     return '''
     <!doctype html>
-    <title>Upload new File</title>
+    <head>
+    <link rel="stylesheet" type="text/css" href="{}" />
+    <title>ImageNet - Home</title>
+    </head>
     <h1>Upload new File</h1>
     <form method="post" enctype="multipart/form-data">
       <p><input type="file" name="file">
          <input type="submit" value="Upload">
     </form>
-    '''
+    '''.format(url_for("static", filename="styles.css"))
 
 
 def main(img_file):
@@ -58,22 +61,17 @@ def do_classify_image():
 
     img_file = request.args.get("filename")
 
-    graph = tf.Graph()
-    with graph.as_default():
-        dummy = tf.add(1, 3)
-        full_path = os.sep.join([UPLOAD_FOLDER, img_file])
-        predictions_out = run_inference_on_image(full_path)
+    full_path = os.sep.join([UPLOAD_FOLDER, img_file])
 
-    with tf.Session(graph=graph) as sess:
-        #outz = sess.run(fetches=output)
-        predz = sess.run(fetches=dummy)
+    # All the TensorFlow stuff happens in the next function
+    predictions_out = run_inference_on_image(full_path)
 
     # Creates node ID --> English string lookup.
     node_lookup = NodeLookup()
 
     # top_k = predictions.argsort()[-FLAGS.num_top_predictions:][::-1]
     top_k = predictions_out.argsort()[-5:][::-1]
-    
+
     output = []
 
     for node_id in top_k:
@@ -82,16 +80,16 @@ def do_classify_image():
       print('%s (score = %.5f)' % (human_string, score))
       output.append((human_string, score))
     # outz = tf.app.run(main=main, argv=[None, img_file]) 
-   
+
     if len(output) > 0:
         alt_text = "Most likely " + str(output[0][0])
     else:
         alt_text = "Unable to categorize this image"
- 
+
     print_out = []
     for x in output:
         print_out.append("<tr><td>" + str(x[0]) + "</td><td>" +  "{:3.1f}".format(x[1] * 100) + " percent </td></tr>")
- 
+
     return '''
     <!doctype html>
     <head>
@@ -103,7 +101,10 @@ def do_classify_image():
     <p>Image classified as:</p>
     <table><tr><th>Prediction</th><th>Confidence</th></tr>{}</table>
     <br />
+    <br />
     <a href="/">Click here to upload another image</a>
+    <br />
+    <br />
     <img src="{}" alt="{}" />
     </body>
     </html>'''.format(url_for("static", filename="styles.css")," ".join(print_out), url_for("static", filename=img_file), alt_text)

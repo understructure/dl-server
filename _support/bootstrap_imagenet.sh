@@ -16,7 +16,8 @@ pip install --upgrade pip
                            pandas \
                            numpy \
                            tensorflow \
-                           boto3
+                           boto3 \
+                           Pillow
 
 # https://stackoverflow.com/questions/26302805/pip-broken-after-upgrading
 hash -r
@@ -41,11 +42,12 @@ mv /var/www/tf/_support/vhost.conf /etc/httpd/conf.d/
 chown apache:apache /etc/httpd/conf.d/vhost.conf
 
 # get the public-hostname from the latest metadata and put that into the vhost.conf file
-curl http://169.254.169.254/latest/meta-data/public-hostname | xargs -I '{}' sudo sed -i 's/${PUBLIC_DNS}/{}/' /etc/httpd/conf.d/vhost.conf
+# curl http://169.254.169.254/latest/meta-data/public-hostname | xargs -I '{}' sudo sed -i 's/${PUBLIC_DNS}/{}/' /etc/httpd/conf.d/vhost.conf
+curl http://169.254.169.254/latest/meta-data/public-hostname | xargs -I '{}' sed -i 's/${PUBLIC_DNS}/{}/' /etc/httpd/conf.d/vhost.conf
 
 git clone https://github.com/tensorflow/models.git
 python ./models/tutorials/image/imagenet/classify_image.py
 
 # start Apache Web Server
-sudo service httpd start
-sudo chkconfig httpd on
+service httpd start
+chkconfig httpd on

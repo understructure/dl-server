@@ -25,13 +25,6 @@ echo $(type pip)
 # NOTE:  This may or may not be needed...
 # alias pip=/usr/local/bin/pip3
 
-# install critical libraries (Pandas isn't directly used in our case...)
-# pip install flask \
-#             pandas \
-#             numpy \
-#             tensorflow \
-#             boto3
-
 # create a place for our Web app
 mkdir -p /var/www/tf
 git clone https://github.com/understructure/dl-server.git /var/www/tf

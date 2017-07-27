@@ -1,0 +1,76 @@
+{
+  "requiresAttributes": [
+    {
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17",
+      "targetId": null,
+      "targetType": null
+    },
+    {
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.ecr-auth",
+      "targetId": null,
+      "targetType": null
+    },
+    {
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21",
+      "targetId": null,
+      "targetType": null
+    }
+  ],
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:717485337400:task-definition/ecr-task-start-apache:11",
+  "networkMode": "bridge",
+  "status": "ACTIVE",
+  "revision": 11,
+  "taskRoleArn": null,
+  "containerDefinitions": [
+    {
+      "volumesFrom": [],
+      "memory": 2048,
+      "extraHosts": null,
+      "dnsServers": [],
+      "disableNetworking": null,
+      "dnsSearchDomains": null,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80,
+          "protocol": "tcp"
+        },
+        {
+          "hostPort": 443,
+          "containerPort": 443,
+          "protocol": "tcp"
+        }
+      ],
+      "hostname": null,
+      "essential": true,
+      "entryPoint": [
+        "/bin/bash",
+        "-c"
+      ],
+      "mountPoints": [],
+      "name": "ecs-cont-test-tf",
+      "ulimits": null,
+      "dockerSecurityOptions": null,
+      "environment": [],
+      "links": null,
+      "workingDirectory": "/home/ec2-user",
+      "readonlyRootFilesystem": null,
+      "image": "717485337400.dkr.ecr.us-east-1.amazonaws.com/machine-learning:latest",
+      "command": [
+        "/bin/bash -c \"curl http://169.254.169.254/latest/meta-data/public-hostname | xargs -I '{}' sed -i 's/\\$\\{PUBLIC_DNS\\}/{}/' /etc/httpd/conf.d/vhost.conf;service httpd start && chkconfig httpd on;while true; do sleep 1000; done\""
+      ],
+      "user": null,
+      "dockerLabels": null,
+      "logConfiguration": null,
+      "cpu": 1000,
+      "privileged": null,
+      "memoryReservation": 500
+    }
+  ],
+  "placementConstraints": [],
+  "volumes": [],
+  "family": "ecr-task-start-apache"
+}

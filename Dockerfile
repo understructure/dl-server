@@ -39,7 +39,10 @@ RUN git clone https://github.com/tensorflow/models.git && python ./models/tutori
 
 
 # get the public-hostname from the latest metadata and put that into the vhost.conf file
+# may also need to do this for /etc/httpd/conf/httpd.conf
 # curl http://169.254.169.254/latest/meta-data/public-hostname | xargs -I '{}' sed -i 's/${PUBLIC_DNS}/{}/' /etc/httpd/conf.d/vhost.conf
+# curl http://169.254.169.254/latest/meta-data/public-hostname | xargs -I '{}' sed -i 's/#ServerName www.example.com:80/ServerName {}/'  /etc/httpd/conf/httpd.conf
+
 # start Apache Web Server
 # service httpd start && chkconfig httpd on
 

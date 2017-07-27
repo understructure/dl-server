@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import tensorflow as tf
 from classify_image import run_inference_on_image, NodeLookup
 from PIL import Image
+import time
 
 UPLOAD_FOLDER = '/var/www/tf/static'
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg', 'png'])
@@ -90,12 +91,14 @@ def do_classify_image():
     img_file = request.args.get("filename")
 
     full_path = os.sep.join([UPLOAD_FOLDER, img_file])
+    start_time = time.time()
 
     # All the TensorFlow stuff happens in the next function
     predictions_out = run_inference_on_image(full_path)
 
     # Creates node ID --> English string lookup.
     node_lookup = NodeLookup()
+    end_time = time.time()
 
     # top_k = predictions.argsort()[-FLAGS.num_top_predictions:][::-1]
     top_k = predictions_out.argsort()[-5:][::-1]
@@ -129,6 +132,7 @@ def do_classify_image():
     <title>Image Classification</title>
     </head>
     <body>
+    <p>{}</p>
     <p>Image classified as:</p>
     <table><tr><th>Prediction</th><th>Confidence</th></tr>{}</table>
     <br />
@@ -138,7 +142,7 @@ def do_classify_image():
     <br />
     <img src="{}" alt="{}" />
     </body>
-    </html>'''.format(url_for("static", filename="styles.css")," ".join(print_out), url_for("static", filename=out_filename), alt_text)
+    </html>'''"Took {:3.2f} seconds".format(end_time - start_time), .format(url_for("static", filename="styles.css")," ".join(print_out), url_for("static", filename=out_filename), alt_text)
 
 if __name__ == "__main__":
     app.run(debug=True)

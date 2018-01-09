@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "Hi on a glorious day"
+touch /home/esadmin/itworked.sh
